@@ -207,7 +207,7 @@ function fbpost_content(&$a) {
 	$a->page['htmlhead'] .= '<link rel="stylesheet" type="text/css" href="'
 		. $a->get_baseurl() . '/addon/fbpost/fbpost.css' . '" media="all" />' . "\r\n";
 
-	$o .= '<h3>' . t('Facebook Post') . '</h3>';
+	$o .= '<h3>' . t('Facebook') . '</h3>';
 
 	if(! $fb_installed) {
 		$o .= '<div id="fbpost-enable-wrapper">';
@@ -293,8 +293,7 @@ function fbpost_content(&$a) {
 function fbpost_plugin_settings(&$a,&$b) {
 
 	$b .= '<div class="settings-block">';
-	//$b .= '<h3>' . t('Facebook Post Settings') . '</h3>';
-	$b .= '<a href="fbpost"><h3>' . t('Facebook Post Settings') . '</a></h3>';
+	$b .= '<a href="fbpost"><h3>' . t('Facebook') . '</a></h3>';
 	$b .= '</div>';
 
 }
@@ -362,6 +361,8 @@ function fbpost_jot_nets(&$a,&$b) {
 function fbpost_createmsg($b) {
 	require_once("include/bbcode.php");
 	require_once("include/html2plain.php");
+
+	$b['body'] = bb_CleanPictureLinks($b['body']);
 
 	// Looking for the first image
 	$image = '';
@@ -632,6 +633,7 @@ function fbpost_post_hook(&$a,&$b) {
 
 				logger('fbpost_post_hook: original msg=' . $msg, LOGGER_DATA);
 
+				// To-Do: if it is a reply, then only do a simple bbcode2plain conversion
 				$msgarr = fbpost_createmsg($b);
 				$msg = $msgarr["msg"];
 				$link = $msgarr["link"];
@@ -762,9 +764,13 @@ function fbpost_post_hook(&$a,&$b) {
 							intval($b['id']),
 							intval($b['id'])
 						);
-					}
-					else {
-						if(! $likes) {
+					} else {
+						// Sometimes posts are accepted from facebook although it telling an error
+						// This leads to endless comment flooding.
+
+						// If it is a special kind of failure the post was receiced
+						// Although facebook said it wasn't received ...
+						if (!$likes AND (($retj->error->type != "OAuthException") OR ($retj->error->code != 2)) AND ($x <> "")) {
 							$r = q("SELECT `id` FROM `contact` WHERE `uid` = %d AND `self`", intval($b['uid']));
 							if (count($r))
 								$a->contact = $r[0]["id"];
@@ -910,10 +916,16 @@ function fbpost_queue_hook(&$a,&$b) {
 					);
 					logger('fbpost_queue_hook: success: ' . $j);
 					remove_queue_item($x['id']);
-				}
-				else {
+				} else {
 					logger('fbpost_queue_hook: failed: ' . $j);
-					update_queue_time($x['id']);
+
+					// If it is a special kind of failure the post was receiced
+					// Although facebook said it wasn't received ...
+					$ret = json_decode($j);
+					if (($ret->error->type != "OAuthException") OR ($ret->error->code != 2) AND ($j <> ""))
+						update_queue_time($x['id']);
+					else
+						logger('fbpost_queue_hook: Not requeued, since it seems to be received');
 				}
 			} else {
 				logger('fbpost_queue_hook: No fb_post or fb_token.');
@@ -1099,7 +1111,7 @@ function fbpost_fetchwall($a, $uid) {
 			$_REQUEST["body"] .= "[class=type-".$type."]";
 
 		if ($content)
-			$_REQUEST["body"] .= $content;
+			$_REQUEST["body"] .= trim($content);
 
 		if ($quote)
 			$_REQUEST["body"] .= "\n[quote]".$quote."[/quote]";
@@ -1160,7 +1172,7 @@ function fbpost_get_photo($uid,$link) {
 
 function fpost_cleanpicture($image) {
 
-	if (strpos($image, ".fbcdn.net/") and (substr($image, -6) == "_s.jpg"))
+	if ((strpos($image, ".fbcdn.net/") OR strpos($image, "/fbcdn-photos-")) and (substr($image, -6) == "_s.jpg"))
 		$image = substr($image, 0, -6)."_n.jpg";
 
 	$queryvar = fbpost_parse_query($image);

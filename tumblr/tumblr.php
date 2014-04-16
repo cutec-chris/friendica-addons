@@ -182,11 +182,11 @@ function tumblr_settings(&$a,&$s) {
     /* Add some HTML to the existing form */
 
     $s .= '<span id="settings_tumblr_inflated" class="settings-block fakelink" style="display: block;" onclick="openClose(\'settings_tumblr_expanded\'); openClose(\'settings_tumblr_inflated\');">';
-    $s .= '<h3>' . t('Tumblr Post Settings') . '</h3>';
+    $s .= '<h3>' . t('Tumblr') . '</h3>';
     $s .= '</span>';
     $s .= '<div id="settings_tumblr_expanded" class="settings-block" style="display: none;">';
     $s .= '<span class="fakelink" onclick="openClose(\'settings_tumblr_expanded\'); openClose(\'settings_tumblr_inflated\');">';
-    $s .= '<h3>' . t('Tumblr Post Settings') . '</h3>';
+    $s .= '<h3>' . t('Tumblr') . '</h3>';
     $s .= '</span>';
 
     $s .= '<div id="tumblr-username-wrapper">';
@@ -350,18 +350,18 @@ function tumblr_send(&$a,&$b) {
 			$params['embed'] = $link;
 			if ($title != '')
 				$params['caption'] = '<h1><a href="'.$link.'">'.$title.
-							"</a></h1><p>".bbcode($body, false, false)."</p>";
+							"</a></h1><p>".bbcode($body, false, false, 4)."</p>";
 			else
-				$params['caption'] = bbcode($body, false, false);
+				$params['caption'] = bbcode($body, false, false, 4);
 		} else if (($link != '') and !$video) {
 			$params['type'] = "link";
 			$params['title'] = $title;
 			$params['url'] = $link;
-			$params['description'] = bbcode($b["body"], false, false);
+			$params['description'] = bbcode($b["body"], false, false, 4);
 		} else {
 			$params['type'] = "text";
 			$params['title'] = $title;
-			$params['body'] = bbcode($b['body'], false, false);
+			$params['body'] = bbcode($b['body'], false, false, 4);
 		}
 
 		$consumer_key = get_config('tumblr','consumer_key');

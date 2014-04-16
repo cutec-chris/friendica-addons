@@ -53,11 +53,11 @@ function appnetpost_settings(&$a,&$s) {
 	$def_checked = (($def_enabled) ? ' checked="checked" ' : '');
 
 	$s .= '<span id="settings_appnetpost_inflated" class="settings-block fakelink" style="display: block;" onclick="openClose(\'settings_appnetpost_expanded\'); openClose(\'settings_appnetpost_inflated\');">';
-	$s .= '<h3>' . t('App.net Post Settings') . '</h3>';
+	$s .= '<h3>' . t('App.net') . '</h3>';
 	$s .= '</span>';
 	$s .= '<div id="settings_appnetpost_expanded" class="settings-block" style="display: none;">';
 	$s .= '<span class="fakelink" onclick="openClose(\'settings_appnetpost_expanded\'); openClose(\'settings_appnetpost_inflated\');">';
-	$s .= '<h3>' . t('App.net Post Settings') . '</h3>';
+	$s .= '<h3>' . t('App.net') . '</h3>';
 	$s .= '</span>';
 
 	$s .= '<div id="appnetpost-enable-wrapper">';
@@ -287,6 +287,8 @@ function appnetpost_feeditem($pid, $uid) {
 
 	$items = q("SELECT `uri`, `plink`, `author-link`, `author-name`, `created`, `edited`, `id`, `title`, `body` from `item` WHERE id=%d", intval($pid));
 	foreach ($items AS $item) {
+
+		$item['body'] = bb_CleanPictureLinks($item['body']);
 
 		// Looking for the first image
 		$image = '';

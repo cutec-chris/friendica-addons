@@ -74,7 +74,7 @@ function forumlist_network_mod_init($a,$b) {
 
 	if(count($contacts)) {
 		foreach($contacts as $contact) {
-			$forumlist .= '<div><a href="' . $a->get_baseurl() . '/redir/' . $contact["id"] . '" title="' . $contact['url'] . '" class="label sparkle" target="external-link"><img class="forumlist-img" height="20" width="20" src="' . $contact['micro'] .'" alt="' . $contact['url'] . '" /></a> <a href="' . $a->get_baseurl() . '/network?f=&cid=' . $contact['id'] . '" >' . $contact["name"]."</a></div>";
+			$forumlist .= '<div><a href="' . $a->get_baseurl() . '/redir/' . $contact["id"] . '" title="' . $contact['url'] . '" class="label sparkle" target="_blank"><img class="forumlist-img" height="20" width="20" src="' . $contact['micro'] .'" alt="' . $contact['url'] . '" /></a> <a href="' . $a->get_baseurl() . '/network?f=&cid=' . $contact['id'] . '" >' . $contact["name"]."</a></div>";
 		}
 	}
 	else {
@@ -158,11 +158,11 @@ function forumlist_plugin_settings(&$a,&$s) {
 
 	/* Add some HTML to the existing form */
 	$s .= '<span id="settings_forumlist_inflated" class="settings-block fakelink" style="display: block;" onclick="openClose(\'settings_forumlist_expanded\'); openClose(\'settings_forumlist_inflated\');">';
-	$s .= '<h3>' . t('Forumlist Settings') . '</h3>';
+	$s .= '<h3>' . t('Forumlist') . '</h3>';
 	$s .= '</span>';
 	$s .= '<div id="settings_forumlist_expanded" class="settings-block" style="display: none;">';
 	$s .= '<span class="fakelink" onclick="openClose(\'settings_forumlist_expanded\'); openClose(\'settings_forumlist_inflated\');">';
-	$s .= '<h3>' . t('Forumlist Settings') . '</h3>';
+	$s .= '<h3>' . t('Forumlist') . '</h3>';
 	$s .= '</span>';
 
 	$s .= '<div id="forumlist-settings-wrapper">';

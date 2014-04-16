@@ -155,7 +155,7 @@ function statusnet_settings_post ($a,$post) {
 	    return;
 	// don't check statusnet settings if statusnet submit button is not clicked
 	if (!x($_POST,'statusnet-submit')) return;
-	
+
 	if (isset($_POST['statusnet-disconnect'])) {
             /***
              * if the statusnet-disconnect checkbox is set, clear the statusnet configuration
@@ -279,11 +279,11 @@ function statusnet_settings(&$a,&$s) {
 	$shorteningchecked = (($shorteningenabled) ? ' checked="checked" ' : '');
 
 	$s .= '<span id="settings_statusnet_inflated" class="settings-block fakelink" style="display: block;" onclick="openClose(\'settings_statusnet_expanded\'); openClose(\'settings_statusnet_inflated\');">';
-	$s .= '<h3>'. t('StatusNet Posting Settings').'</h3>';
+	$s .= '<h3>'. t('StatusNet').'</h3>';
 	$s .= '</span>';
 	$s .= '<div id="settings_statusnet_expanded" class="settings-block" style="display: none;">';
 	$s .= '<span class="fakelink" onclick="openClose(\'settings_statusnet_expanded\'); openClose(\'settings_statusnet_inflated\');">';
-	$s .= '<h3>'. t('StatusNet Posting Settings').'</h3>';
+	$s .= '<h3>'. t('StatusNet').'</h3>';
 	$s .= '</span>';
 
 	if ( (!$ckey) && (!$csecret) ) {
@@ -448,19 +448,23 @@ function short_link($url) {
 } };
 
 function statusnet_shortenmsg($b, $max_char) {
+	require_once("include/api.php");
 	require_once("include/bbcode.php");
 	require_once("include/html2plain.php");
 
+	$b['body'] = bb_CleanPictureLinks($b['body']);
+
 	// Looking for the first image
+	$cleaned_body = api_clean_plain_items($b['body']);
 	$image = '';
-	if(preg_match("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/is",$b['body'],$matches))
+	if(preg_match("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/is",$cleaned_body,$matches))
 		$image = $matches[3];
 
 	if ($image == '')
-		if(preg_match("/\[img\](.*?)\[\/img\]/is",$b['body'],$matches))
+		if(preg_match("/\[img\](.*?)\[\/img\]/is",$cleaned_body,$matches))
 			$image = $matches[1];
 
-	$multipleimages = (strpos($b['body'], "[img") != strrpos($b['body'], "[img"));
+	$multipleimages = (strpos($cleaned_body, "[img") != strrpos($cleaned_body, "[img"));
 
 	// When saved into the database the content is sent through htmlspecialchars
 	// That means that we have to decode all image-urls
@@ -500,7 +504,7 @@ function statusnet_shortenmsg($b, $max_char) {
 	//$body = preg_replace("/\[share(.*?)\](.*?)\[\/share\]/ism","\n\n$2\n\n",$body);
 
 	// At first convert the text to html
-	$html = bbcode($body, false, false, 2);
+	$html = bbcode(api_clean_plain_items($body), false, false, 2);
 
 	// Then convert it to plain text
 	//$msg = trim($b['title']." \n\n".html2plain($html, 0, true));
